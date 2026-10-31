@@ -1,2 +1,35 @@
-# tech-challenge-oficina-infra-rds
-FIAP Fase 3: bootstrap CI e contratos; sem infraestrutura provisionada
+# Oficina — infraestrutura RDS
+
+Bootstrap de contratos Terraform. **Nenhum recurso cloud implementado ou provisionado.**
+Sem provider AWS, backend remoto ativo, data sources ou recursos. `integration_contract`
+é apenas metadado com `implemented=false`; não contém IDs/endpoints reais.
+
+Responsabilidade futura: RDS PostgreSQL privado, DB subnet group, SG de banco, criptografia, backups, proteção contra exclusão e referências dos segredos.
+
+## CI e validação local
+
+```sh
+terraform fmt -check -recursive
+terraform init -backend=false -input=false
+terraform validate
+python3 scripts/bootstrap_policy.py
+python3 -m venv .venv
+. .venv/bin/activate
+pip install checkov==3.2.471
+checkov --directory . --framework terraform --compact
+```
+
+Terraform 1.14.6 no CI; Python 3.12. Check `Terraform validation and security`.
+Checkov roda sem soft-fail; nesta fase não há recursos para avaliar controles AWS.
+A política estática adicional impede introduzir recursos inadvertidamente.
+A PR que implementar infraestrutura deve substituir essa barreira por regras reais
+(e.g. criptografia, acesso privado, IAM mínimo), incluir provider fixado e lockfile.
+Não executar plan/apply/destroy nesta etapa. Exemplos de ambientes não contêm segredos.
+
+## Integrações futuras
+
+Campos previstos: db_endpoint, db_port, db_name, app_secret_arn, auth_secret_arn. Nunca exportar senha, chave privada ou kubeconfig.
+Consome VPC, subnets privadas e SGs app/auth da stack K3s; cria regras 5432 somente dessas origens. Não lê state remoto completo. Flyway e usuários SQL pertencem à aplicação; auth terá apenas SELECT da view versionada.
+
+[Contratos e ordem de provisionamento](https://github.com/ppdssdev/tech-challenge-oficina/blob/feature/fase3-multirepo-bootstrap/docs/fase3/aws-infrastructure-dependencies.md).
+Após inicialização: PR obrigatório, CI e revisão. Nenhum deploy habilitado.
