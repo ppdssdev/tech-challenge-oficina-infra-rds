@@ -31,6 +31,6 @@ jobs:
       - run: terraform fmt -check -recursive
       - run: terraform init -backend=false -input=false
       - run: terraform validate
+      - run: pip install checkov==3.2.471 bc-python-hcl2==0.4.3
       - run: python scripts/bootstrap_policy.py
-      - run: pip install checkov==3.2.471
-      - run: checkov --directory . --framework terraform --compact
+      - run: checkov --directory . --framework terraform --compact --skip-download --skip-path .venv --skip-path .terraform

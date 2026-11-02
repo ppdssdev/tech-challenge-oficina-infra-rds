@@ -5,3 +5,5 @@
 !*.tfvars.example
 .env*
 .venv/
+*.tfvars.json
+__pycache__/
