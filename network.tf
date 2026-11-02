@@ -37,7 +37,7 @@ resource "aws_db_subnet_group" "postgres" {
     }
     precondition {
       condition = alltrue([for sg in data.aws_security_group.clients :
-        sg.vpc_id == var.network_contract.vpc_id && sg.owner_id == var.aws_account_id
+        sg.vpc_id == var.network_contract.vpc_id && split(":", sg.arn)[4] == var.aws_account_id
       ])
       error_message = "SGs app e auth devem pertencer à conta/VPC esperadas."
     }
