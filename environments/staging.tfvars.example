@@ -1,2 +1,6 @@
 environment = "staging"
 aws_region  = "us-east-2"
+# Preencher aws_account_id com a conta autorizada, confirmada independentemente.
+# Preencher postgres_engine_version com uma minor 16.x regional suportada.
+# Fornecer network_contract pelo arquivo network.auto.tfvars.json gerado do output K3s.
+# Não inserir senha. Exemplo intencionalmente incompleto, sem IDs fictícios.

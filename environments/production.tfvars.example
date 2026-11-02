@@ -1,2 +1,4 @@
 environment = "production"
 aws_region  = "us-east-2"
+# Histórico do bootstrap: produção NÃO é suportada por esta stack nesta fase.
+# A validação de environment rejeita este exemplo; não usar para provisionamento.
