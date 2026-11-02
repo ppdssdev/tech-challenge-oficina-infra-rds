@@ -129,7 +129,7 @@ class Policy(unittest.TestCase):
                            'subnet.vpc_id == var.network_contract.vpc_id',
                            'subnet.owner_id == var.aws_account_id', '!subnet.map_public_ip_on_launch',
                            'subnet.availability_zone_id])) >= 2',
-                           'sg.vpc_id == var.network_contract.vpc_id', 'sg.owner_id == var.aws_account_id'):
+                           'sg.vpc_id == var.network_contract.vpc_id', 'split(":",sg.arn)[4] == var.aws_account_id'):
             self.assertIn(expression, conditions)
         self.assertEqual(len(subnet['lifecycle'][0]['precondition']), 4)
 
