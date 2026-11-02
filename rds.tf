@@ -41,7 +41,7 @@ resource "aws_db_instance" "postgres" {
   manage_master_user_password  = true
   performance_insights_enabled = false
   monitoring_interval          = 0
-  backup_retention_period      = 7
+  backup_retention_period      = 1
   backup_window                = "03:00-04:00"
   maintenance_window           = "sun:05:00-sun:06:00"
   auto_minor_version_upgrade   = true
