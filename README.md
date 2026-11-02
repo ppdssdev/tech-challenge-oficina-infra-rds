@@ -1,54 +1,49 @@
-# Oficina — infraestrutura RDS
+# Oficina — RDS existente (Fase 3)
 
-Bootstrap de contratos Terraform. **Nenhum recurso cloud implementado ou provisionado.**
-Sem provider AWS, backend remoto ativo, data sources ou recursos. `integration_contract`
-é apenas metadado com `implemented=false`; não contém IDs/endpoints reais.
+O RDS `oficina-staging-postgres` já foi provisionado em `us-east-2` pelo
+**root Terraform local do K3s**, junto com a rede. Este repositório passa a guardar
+em [`shared-root/rds.tf`](shared-root/rds.tf) o código original, sem mudanças nos
+cinco endereços ou nas configurações provisionadas. Não é uma stack independente.
 
-Responsabilidade futura: RDS PostgreSQL privado, DB subnet group, SG de banco, criptografia, backups, proteção contra exclusão e referências dos segredos.
+**Não executar apply neste repositório nem inicializar um estado RDS separado.**
+O estado autoritativo continua no checkout operacional K3s. Não copiar o estado
+para este repositório, não remover o `rds.tf` operacional e não transformar o
+fragmento em um `module`: isso mudaria endereços e exigiria migração coordenada.
+O diretório `shared-root` depende das declarações do K3s e não valida sozinho.
+A raiz permanece apenas com metadados, sem recursos ou backend operacional.
 
-## CI e validação local
+## Validação segura
+
+Terraform 1.14.6 / AWS provider 6.38.0; lockfile proveniente do root operacional.
 
 ```sh
 terraform fmt -check -recursive
 terraform init -backend=false -input=false
 terraform validate
 python3 scripts/bootstrap_policy.py
-python3 -m venv .venv
-. .venv/bin/activate
-pip install checkov==3.2.471
-checkov --directory . --framework terraform --compact
+python3 scripts/validate_shared_root.py /caminho/checkout-k3s
 ```
 
-Terraform 1.14.6 no CI; Python 3.12. Check `Terraform validation and security`.
-Checkov roda sem soft-fail; nesta fase não há recursos para avaliar controles AWS.
-A política estática adicional impede introduzir recursos inadvertidamente.
-A PR que implementar infraestrutura deve substituir essa barreira por regras reais
-(e.g. criptografia, acesso privado, IAM mínimo), incluir provider fixado e lockfile.
-Não executar plan/apply/destroy nesta etapa. Exemplos de ambientes não contêm segredos.
+O último comando extrai o commit K3s fixado em diretório temporário, adiciona o
+fragmento e executa somente init/validate. Não lê nem copia state, tfvars ou
+alterações locais. O CI faz a mesma composição sem credenciais AWS; não há deploy.
+Checkov avalia o fragmento com exceções explícitas dos riscos existentes.
 
-## Integrações futuras
+## Integração preservada
 
-Campos previstos: db_endpoint, db_port, db_name, app_secret_arn, auth_secret_arn. Nunca exportar senha, chave privada ou kubeconfig.
-Consome VPC, subnets privadas e SGs app/auth da stack K3s; cria regras 5432 somente dessas origens. Não lê state remoto completo. Flyway e usuários SQL pertencem à aplicação; auth terá apenas SELECT da view versionada.
+| Contrato K3s | Referência original preservada |
+| --- | --- |
+| `vpc_id` | `aws_vpc.this.id` |
+| `private_subnet_ids` | `aws_subnet.private` ordenadas por chave |
+| `app_security_group_id` | `aws_security_group.app.id` |
 
-[Contratos e ordem de provisionamento](https://github.com/ppdssdev/tech-challenge-oficina/blob/feature/fase3-multirepo-bootstrap/docs/fase3/aws-infrastructure-dependencies.md).
-Após inicialização: PR obrigatório, CI e revisão. Nenhum deploy habilitado.
+Como o root é compartilhado, as referências usam os mesmos recursos que alimentam
+os outputs K3s; não se adiciona `terraform_remote_state`. O SG `auth` não possui
+regra para o banco hoje. O fragmento conserva `rds_endpoint` e
+`rds_master_secret_arn`; o ARN master é uma referência administrativa, não uma
+credencial para a aplicação. `db_endpoint`, `db_port`, `db_name`,
+`app_secret_arn` e `auth_secret_arn` continuam contratos futuros; o metadado
+`integration_contract.implemented=false` indica que a interface independente
+não foi implementada. Não publicar senhas em outputs.
 
-## Revisão corretiva do bootstrap
-
-Aprovação deste bootstrap não representa conclusão da Fase 3. O workflow atual
-executa **CI**, inclusive em push main; não implementa CD automático. Environments
-existentes não são prova de deployment. Nenhum recurso AWS foi implementado aqui.
-
-O checkout padrão de `pull_request` testa o merge sintético (GITHUB_SHA), enquanto
-`github.event.pull_request.head.sha` identifica o HEAD da PR. Registrar ambos, base,
-repo e run ID/attempt ao relacionar checks e artifacts. Nunca chamar o SHA de merge
-de CI de HEAD da PR nem de release implantada.
-
-`integration_contract` é metadado com implemented=false; `planned_fields` enumera
-nomes previstos. Não é conjunto de outputs reais consumíveis. Ainda faltam recursos,
-interfaces tipadas entre stacks e testes de integração. O CI não gera plano nem
-publica artifact de infraestrutura; Checkov sem recursos não comprova controles AWS.
-
-[Matriz, contratos e diagnóstico de governança](https://github.com/ppdssdev/tech-challenge-oficina/blob/feature/fase3-multirepo-bootstrap/docs/fase3/corrective-review.md).
-[Rastreabilidade e gates de CD](https://github.com/ppdssdev/tech-challenge-oficina/blob/feature/fase3-multirepo-bootstrap/docs/fase3/cicd-strategy.md).
+Veja [evidências e riscos](docs/evidence.md) e [operação e rollback](docs/runbook.md).

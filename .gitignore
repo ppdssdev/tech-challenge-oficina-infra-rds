@@ -5,3 +5,15 @@
 !*.tfvars.example
 .env*
 .venv/
+*.tfvars.json
+*.auto.tfvars.json
+*.plan
+crash.*.log
+*.pem
+*.key
+*.p12
+*.pfx
+.aws/
+__pycache__/
+*.pyc
+.validation-k3s/

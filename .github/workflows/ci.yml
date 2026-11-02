@@ -33,4 +33,11 @@ jobs:
       - run: terraform validate
       - run: python scripts/bootstrap_policy.py
       - run: pip install checkov==3.2.471
-      - run: checkov --directory . --framework terraform --compact
+      - run: python scripts/check_security.py
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ppdssdev/tech-challenge-oficina-infra-k3s
+          ref: 2314744b57fdccb86802a773159f24b97b977e49
+          path: .validation-k3s
+          persist-credentials: false
+      - run: python scripts/validate_shared_root.py .validation-k3s
