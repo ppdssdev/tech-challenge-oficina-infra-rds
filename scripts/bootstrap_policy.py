@@ -71,7 +71,7 @@ class Policy(unittest.TestCase):
             'storage_type': 'gp3', 'storage_encrypted': True, 'multi_az': False,
             'publicly_accessible': False, 'manage_master_user_password': True,
             'performance_insights_enabled': False, 'monitoring_interval': 0,
-            'backup_retention_period': 7, 'skip_final_snapshot': False,
+            'backup_retention_period': 1, 'skip_final_snapshot': False,
             'delete_automated_backups': False, 'allow_major_version_upgrade': False,
             'engine_lifecycle_support': 'open-source-rds-extended-support-disabled',
             'deletion_protection': '${var.deletion_protection}',

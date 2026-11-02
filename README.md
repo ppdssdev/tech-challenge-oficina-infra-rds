@@ -94,7 +94,7 @@ a separação de backend e permissões entre stacks/ambientes.
 
 ## Backups e desmontagem segura
 
-Backups automáticos por 7 dias, janela diária 03:00–04:00 UTC; manutenção domingo
+Backups automáticos por 1 dia (limitação do AWS Free Plan), janela diária 03:00–04:00 UTC; manutenção domingo
 05:00–06:00 UTC. Alterações usam janela de manutenção (`apply_immediately=false`).
 `delete_automated_backups=false` preserva backups pelo prazo de retenção após exclusão;
 `skip_final_snapshot=false` exige snapshot final. Snapshot manual final permanece
