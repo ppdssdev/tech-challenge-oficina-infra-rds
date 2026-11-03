@@ -57,7 +57,21 @@ class Policy(unittest.TestCase):
             'aws_rds_engine_version.postgres', 'aws_rds_orderable_db_instance.postgres'})
         for kind in ('module', 'import', 'moved', 'removed', 'check'):
             self.assertNotIn(kind, self.config)
-        self.assertNotIn('backend', self.config['terraform'][0])
+        backends = [backend for terraform in self.config.get('terraform', [])
+                    for backend in terraform.get('backend', [])]
+        self.assertEqual(len(backends), 1)
+        self.assertEqual(set(backends[0]), {'s3'})
+        backend = backends[0]['s3']
+        for field, expected in {
+            'bucket': 'oficina-staging-tfstate-797781632267',
+            'key': 'staging/rds/terraform.tfstate',
+            'region': 'us-east-2',
+            'encrypt': True,
+            'use_lockfile': True,
+        }.items():
+            self.assertIn(field, backend)
+            self.assertIs(type(backend[field]), type(expected), field)
+            self.assertEqual(backend[field], expected, field)
         provider = self.config['provider'][0]['aws']
         self.assertEqual(provider['allowed_account_ids'], ['${var.aws_account_id}'])
         self.assertEqual(provider['profile'], 'oficina-staging')
@@ -160,6 +174,52 @@ class Policy(unittest.TestCase):
         policy.resources['aws_vpc.forbidden'] = {}
         with self.assertRaises(AssertionError):
             policy.test_ownership_and_state()
+
+    def test_backend_regressions_are_rejected(self):
+        for field, value in (
+            ('bucket', 'other-bucket'),
+            ('key', 'other/terraform.tfstate'),
+            ('region', 'us-east-1'),
+            ('encrypt', False),
+            ('use_lockfile', False),
+            ('use_lockfile', 'true'),
+            ('use_lockfile', 1),
+        ):
+            for missing in (False, True):
+                with self.subTest(field=field, value=value, missing=missing):
+                    policy = Policy('test_ownership_and_state')
+                    policy.setUp()
+                    backend = next(t['backend'][0]['s3'] for t in policy.config['terraform']
+                                   if 'backend' in t)
+                    if missing:
+                        del backend[field]
+                    else:
+                        backend[field] = value
+                    with self.assertRaises(AssertionError):
+                        policy.test_ownership_and_state()
+
+    def test_backend_structure_regressions_are_rejected(self):
+        for case in ('missing', 'alternative', 'additional_type',
+                     'duplicate_same_block', 'duplicate_other_block', 'alternative_other_block'):
+            with self.subTest(case=case):
+                policy = Policy('test_ownership_and_state')
+                policy.setUp()
+                terraform = next(t for t in policy.config['terraform'] if 'backend' in t)
+                backend = terraform['backend'][0]
+                if case == 'missing':
+                    del terraform['backend']
+                elif case == 'alternative':
+                    terraform['backend'] = [{'local': {}}]
+                elif case == 'additional_type':
+                    backend['local'] = {}
+                elif case == 'duplicate_same_block':
+                    terraform['backend'].append(backend.copy())
+                elif case == 'duplicate_other_block':
+                    policy.config['terraform'].append({'backend': [backend.copy()]})
+                else:
+                    policy.config['terraform'].append({'backend': [{'local': {}}]})
+                with self.assertRaises(AssertionError):
+                    policy.test_ownership_and_state()
 
     def test_output_allowlist(self):
         outputs = {k: v['value'] for group in self.config['output'] for k, v in group.items()}
