@@ -76,3 +76,17 @@ Registrar UTC, SHAs, conexão read-only/TLS, contagens agregadas e exit code; in
 `.github/workflows/ci.yml` valida Terraform e política estática, sem provar dados, grants, TLS ou conectividade de staging. O CI não executa estas consultas. Automação operacional SSM/Lambda é manual, condicionada aos gates e distinta de CD. Não modificar IAM, Terraform ou acessos para ultrapassar bloqueios.
 
 Ordem de integração preservada: [API #13](https://github.com/ppdssdev/tech-challenge-oficina/pull/13) antes de [API #14](https://github.com/ppdssdev/tech-challenge-oficina/pull/14); [Lambda #6](https://github.com/ppdssdev/tech-challenge-oficina-auth-lambda/pull/6) e sua correção antes de [Lambda #7](https://github.com/ppdssdev/tech-challenge-oficina-auth-lambda/pull/7). Relacionados: [K3s #6](https://github.com/ppdssdev/tech-challenge-oficina-infra-k3s/pull/6) e [RDS #8](https://github.com/ppdssdev/tech-challenge-oficina-infra-rds/pull/8). Reconsultar heads/checks antes da integração futura; não fazer merge nesta frente.
+
+## Snapshot consultado e correção preparada
+
+[Snapshot GitHub/AWS e acesso efetivo](https://github.com/ppdssdev/tech-challenge-oficina/blob/docs/fase3-final-audit/docs/fase3/security-review-evidence.md):
+checks das bases consultadas aprovados; API write e outros três read para
+`soat-architecture`, sem convites pendentes. Lambda zero, Gateway desabilitado
+AWS_IAM, API 3/3 privada; nenhuma consulta SQL no RDS. Não confundir esses
+checks anteriores com validação dos novos heads documentais.
+
+[Lambda #8](https://github.com/ppdssdev/tech-challenge-oficina-auth-lambda/pull/8)
+contém a correção do adapter e prazo de cleanup, empilhada sobre #6. Sua base não
+aciona o workflow atual; exigir CI no SHA final antes da integração em main.
+O [runbook corretivo](https://github.com/ppdssdev/tech-challenge-oficina-auth-lambda/blob/fix/private-cpf-review/docs/fase3/private-transport-review.md)
+traz os comandos privados e limites. A janela continua não autorizada nesta frente.
