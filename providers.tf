@@ -1,6 +1,6 @@
 provider "aws" {
-  region              = var.aws_region
-  profile             = "oficina-staging"
+  region = var.aws_region
+  # Local: AWS_PROFILE=oficina-staging; CI: temporary OIDC environment credentials.
   allowed_account_ids = [var.aws_account_id]
   default_tags {
     tags = {

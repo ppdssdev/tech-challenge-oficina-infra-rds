@@ -74,7 +74,9 @@ class Policy(unittest.TestCase):
             self.assertEqual(backend[field], expected, field)
         provider = self.config['provider'][0]['aws']
         self.assertEqual(provider['allowed_account_ids'], ['${var.aws_account_id}'])
-        self.assertEqual(provider['profile'], 'oficina-staging')
+        self.assertNotIn('profile', provider)
+        for credential in ('access_key', 'secret_key', 'token'):
+            self.assertNotIn(credential, provider)
         self.assertEqual(provider['region'], '${var.aws_region}')
 
     def test_rds_security_and_cost(self):
