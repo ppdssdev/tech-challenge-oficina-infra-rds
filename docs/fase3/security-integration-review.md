@@ -90,3 +90,16 @@ contém a correção do adapter e prazo de cleanup, empilhada sobre #6. Sua base
 aciona o workflow atual; exigir CI no SHA final antes da integração em main.
 O [runbook corretivo](https://github.com/ppdssdev/tech-challenge-oficina-auth-lambda/blob/fix/private-cpf-review/docs/fase3/private-transport-review.md)
 traz os comandos privados e limites. A janela continua não autorizada nesta frente.
+
+## Bloqueio de allowlist observado em staging
+
+Consulta AWS somente leitura em `2026-11-03T17:11:21Z` contou **um** ID distinto
+em `AUTH_SYNTHETIC_CUSTOMER_IDS` da Lambda `oficina-staging-auth`. Nenhum ID foi
+publicado. O smoke exige três clientes distintos (`owner`, `other`, `inactive`)
+e verifica presença de todos em `preflight`, gate `synthetic_allowlist`; logo,
+o preflight completo está **bloqueado pela configuração atual**, independentemente
+da existência de OS. A contagem não comprova fixture ou proveniência no RDS.
+
+O plano mínimo futuro precisa contemplar inventário privado e allowlist aprovada
+para três identidades distintas; não basta criar dados. Nenhuma alteração de
+allowlist, Lambda ou banco foi autorizada/executada nesta revisão.
