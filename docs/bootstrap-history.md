@@ -1,3 +1,6 @@
+> **Registro histórico:** resultados e pendências abaixo pertencem à etapa original.
+> Estado vigente em 2026-11-03: [consolidação auditada](fase3-evidence.md).
+
 # Oficina — infraestrutura RDS
 
 Bootstrap de contratos Terraform. **Nenhum recurso cloud implementado ou provisionado.**
@@ -31,7 +34,7 @@ Não executar plan/apply/destroy nesta etapa. Exemplos de ambientes não contêm
 Campos previstos: db_endpoint, db_port, db_name, app_secret_arn, auth_secret_arn. Nunca exportar senha, chave privada ou kubeconfig.
 Consome VPC, subnets privadas e SGs app/auth da stack K3s; cria regras 5432 somente dessas origens. Não lê state remoto completo. Flyway e usuários SQL pertencem à aplicação; auth terá apenas SELECT da view versionada.
 
-[Contratos e ordem de provisionamento](https://github.com/ppdssdev/tech-challenge-oficina/blob/feature/fase3-multirepo-bootstrap/docs/fase3/aws-infrastructure-dependencies.md).
+[Contratos e ordem de provisionamento](https://github.com/ppdssdev/tech-challenge-oficina/blob/469984555ea3b1d0d40580ada20144e2d01550b1/docs/fase3/aws-infrastructure-dependencies.md).
 Após inicialização: PR obrigatório, CI e revisão. Nenhum deploy habilitado.
 
 ## Revisão corretiva do bootstrap
@@ -50,5 +53,5 @@ nomes previstos. Não é conjunto de outputs reais consumíveis. Ainda faltam re
 interfaces tipadas entre stacks e testes de integração. O CI não gera plano nem
 publica artifact de infraestrutura; Checkov sem recursos não comprova controles AWS.
 
-[Matriz, contratos e diagnóstico de governança](https://github.com/ppdssdev/tech-challenge-oficina/blob/feature/fase3-multirepo-bootstrap/docs/fase3/corrective-review.md).
-[Rastreabilidade e gates de CD](https://github.com/ppdssdev/tech-challenge-oficina/blob/feature/fase3-multirepo-bootstrap/docs/fase3/cicd-strategy.md).
+[Matriz, contratos e diagnóstico de governança](https://github.com/ppdssdev/tech-challenge-oficina/blob/469984555ea3b1d0d40580ada20144e2d01550b1/docs/fase3/corrective-review.md).
+[Rastreabilidade e gates de CD](https://github.com/ppdssdev/tech-challenge-oficina/blob/469984555ea3b1d0d40580ada20144e2d01550b1/docs/fase3/cicd-strategy.md).
